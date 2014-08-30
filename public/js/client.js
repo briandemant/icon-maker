@@ -1,66 +1,188 @@
-!function(t) {
-	function e(r) {
-		if (n[r]) {
-			return n[r].exports;
-		}
-		var o = n[r] = {exports : {}, id : r, loaded : !1};
-		return t[r].call(o.exports, o, o.exports, e), o.loaded = !0, o.exports
+/******/ (function(modules) { // webpackBootstrap
+/******/ 	// The module cache
+/******/ 	var installedModules = {};
+/******/
+/******/ 	// The require function
+/******/ 	function __webpack_require__(moduleId) {
+/******/
+/******/ 		// Check if module is in cache
+/******/ 		if(installedModules[moduleId])
+/******/ 			return installedModules[moduleId].exports;
+/******/
+/******/ 		// Create a new module (and put it into the cache)
+/******/ 		var module = installedModules[moduleId] = {
+/******/ 			exports: {},
+/******/ 			id: moduleId,
+/******/ 			loaded: false
+/******/ 		};
+/******/
+/******/ 		// Execute the module function
+/******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
+/******/
+/******/ 		// Flag the module as loaded
+/******/ 		module.loaded = true;
+/******/
+/******/ 		// Return the exports of the module
+/******/ 		return module.exports;
+/******/ 	}
+/******/
+/******/
+/******/ 	// expose the modules object (__webpack_modules__)
+/******/ 	__webpack_require__.m = modules;
+/******/
+/******/ 	// expose the module cache
+/******/ 	__webpack_require__.c = installedModules;
+/******/
+/******/ 	// __webpack_public_path__
+/******/ 	__webpack_require__.p = "";
+/******/
+/******/ 	// Load entry module and return exports
+/******/ 	return __webpack_require__(0);
+/******/ })
+/************************************************************************/
+/******/ ([
+/* 0 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	var IconMaker = function() {
+		if (!(this instanceof IconMaker)) { 
+			return new IconMaker();
+		} 
 	}
 
-	var n = {};
-	return e.m = t, e.c = n, e.p = "", e(0)
-}([function(t, e, n) {
+	window.IconMaker = IconMaker;
+	 
+	IconMaker.make = __webpack_require__(1);
+
+/***/ },
+/* 1 */
+/***/ function(module, exports, __webpack_require__) {
+
 	"use strict";
-	var r = function() {return this instanceof r ? void 0 : new r};
-	window.IconMaker = r, r.make = n(5)
-}, , , function(t) {
-	"use strict";
-	t.exports = function(t, e, n) {
-		e = e || 0, n = n || 1;
-		var r = 1 != n, o = 0, i = 0, s = (t + "").split("").map(function(t) {
-			var e = t.charCodeAt(0);
-			return i += e, e
-		});
-		return s = s.map(function(t) {return i += 100 * Math.sin(i), t + Math.sin(i)}), function() {
-			var t = Math.abs(1337 * Math.sin(s[o]));
-			return t = r ? e + (t - (0 | t)) * (n + 1) : e + (t - (0 | t)) * n, s[o] = s[o] + 3.1, o = s.length - 1 == o ? 0 : o + 1, r ? 0 | t : t
-		}
-	}
-}, , function(t, e, n) {
-	"use strict";
-	function r(t) {
-		var e = 360 * t() | 0, n = (100 * t() | 0) + 0, r = (30 * t() | 0) + 35;
-		return "hsl( " + e + ", " + n + "%, " + r + "%)"
+
+	var randMaker = __webpack_require__(2);
+
+	module.exports = function generate(seed, options) {
+		options = options || {}
+		var scale = options.scale || 5;
+		var size = options.size || 11;
+		var rand = randMaker(seed + size);
+
+		var imageData = generateData(rand, size);
+
+		// random color MUST be after data generation else the data generated is dependand on wether color is provided
+		var color = options.color || makeColor(rand);
+
+		return makeCanvas(imageData, scale, color, options.background);
+		;
 	}
 
-	function o(t, e) {
-		e = e || 15;
-		var n, r, o = Math.ceil(e / 2), i = [];
-		for (n = 0; e > n; n++) {
-			for (r = 0; o > r; r++) {
-				var s = t() >= .5;
-				i[n * e + r] = s, i[n * e + e - r - 1] = s
+	module.exports._exposed = {
+		makeColor : makeColor,
+		generateData : generateData,
+		makeCanvas : makeCanvas
+	}
+
+	function makeColor(rand) {
+		var hue = (rand() * 360 | 0);              //  0 - 360 degrees
+		var saturation = ((rand() * 100 | 0) + 0); // 50 - 100%
+
+		// these colors "work" on white and black
+		var light = ((rand() * 30 | 0) + 35);      // 30 - 70%
+		return "hsl( " + hue + ", " + saturation + "%, " + light + "%)";
+	}
+
+	function generateData(rand, size) {
+		size = size || 15;
+		var midPoint = Math.ceil(size / 2);
+		var data = [];
+		var i, j;
+		for (i = 0; i < size; i++) {
+			for (j = 0; j < midPoint; j++) {
+				var onoff = rand() >= 0.5;
+				data[i * size + j] = onoff;
+				data[i * size + size - j - 1] = onoff; // mirror / reverse
 			}
 		}
-		return i
+
+		return data;
 	}
 
-	function i(t, e, n) {
-		var r, o = document.createElement("canvas"), i = Math.sqrt(t.length);
-		o.width = o.height = i * e;
-		var s = o.getContext("2d");
-		for (s.fillStyle = n, r = 0; r < t.length; r++) {
-			var a = Math.floor(r / i), u = r % i;
-			t[r] && s.fillRect(u * e, a * e, e, e)
+
+	function makeCanvas(data, scale, color, background) {
+		var canvas = document.createElement('canvas');
+		var width = Math.sqrt(data.length);
+		var i;
+
+		canvas.width = canvas.height = width * scale;
+
+		var ctx = canvas.getContext('2d');
+		// transparent
+		if (background) {
+			ctx.fillStyle = background;
+			ctx.fillRect(0, 0, canvas.width, canvas.height);
 		}
-		return o
+		ctx.fillStyle = color;
+
+		for (i = 0; i < data.length; i++) {
+			var row = Math.floor(i / width);
+			var col = i % width;
+			if (data[i]) {
+				ctx.fillRect(col * scale, row * scale, scale, scale);
+			}
+		}
+
+		return canvas;
 	}
 
-	var s = n(3);
-	t.exports = function(t, e) {
-		var n = s(t);
-		e = e || {};
-		var a = e.scale || 5, u = e.size || 11, c = o(n, u), l = e.color || r(n);
-		return i(c, a, l)
-	}, t.exports._exposed = {makeColor : r, generateData : o, makeCanvas : i}
-}]);
+	 
+	 
+
+
+/***/ },
+/* 2 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+
+	module.exports = function randomizerMaker(seed, min, max) {
+		min = min || 0;
+		max = max || 1;
+		var round = max != 1;
+		var pos = 0;
+
+		var sum = 0;
+		var data = (  seed + "").split('').map(function(x) {
+			var val = x.charCodeAt(0);
+			sum += val;
+			return val;
+		})
+
+		data = data.map(function(x) {
+			sum += Math.sin(sum) * 100;
+			return x + Math.sin(sum);
+		})
+
+
+		return function rand() {
+			var result = Math.abs((Math.sin(data[pos])) * 1337);
+			if (round) {
+				result = min + (result - (result | 0)) * (max+1); 
+			} else {
+				result = min + (result - (result | 0)) * max;
+			}
+
+			// make this point diffent next time
+			data[pos] = data[pos] + 3.1;
+			// move pointer to next position
+			pos = data.length - 1 == pos ? 0 : pos + 1;
+
+			return round ? result | 0 : result;
+		}
+	} 
+
+/***/ }
+/******/ ])

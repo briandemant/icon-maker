@@ -324,30 +324,48 @@
 	  });
 	  return describe("Api methods", function() {
 	    return describe("visual tests", function() {
-	      it("color does not change the pattern (visual #4 + #5)", function() {
+	      it("color does not change the pattern (visual #4 x 2)", function() {
 	        addVisual(4, generator("same pattern"));
-	        return addVisual(5, generator("same pattern", {
+	        return addVisual(4, generator("same pattern", {
 	          color: "green"
 	        }));
 	      });
-	      it("scale does not change the pattern (visual #6)", function() {
-	        return addVisual(6, generator("same pattern", {
+	      it("scale does not change the pattern (visual #5 x 3)", function() {
+	        addVisual(5, generator("same pattern", {
+	          scale: 2,
+	          color: "#a08"
+	        }));
+	        addVisual(5, generator("same pattern", {
+	          scale: 3,
+	          color: "#a08"
+	        }));
+	        return addVisual(5, generator("same pattern", {
 	          scale: 4,
-	          color: "#ea8"
+	          color: "#a08"
 	        }));
 	      });
-	      it("size does change the pattern (visual #7)", function() {
-	        return addVisual(7, generator("same pattern", {
-	          size: 11,
+	      it("size does not change the pattern (visual #6)", function() {
+	        return addVisual(6, generator("same pattern", {
+	          size: 12,
 	          color: "#a84"
 	        }));
 	      });
-	      return it("small seed change -> big pattern change (visual #8 + #9)", function() {
-	        addVisual(8, generator("pattern1", {
+	      it("small seed change -> big pattern change (visual #7 x 2)", function() {
+	        addVisual(7, generator("pattern1", {
 	          color: "#000"
 	        }));
-	        return addVisual(9, generator("pattern2", {
+	        return addVisual(7, generator("pattern2", {
 	          color: "#000"
+	        }));
+	      });
+	      return it("background color (visual #8 x 2)", function() {
+	        addVisual(8, generator("pattern a", {
+	          color: "#000",
+	          background: "white"
+	        }));
+	        return addVisual(8, generator("pattern a", {
+	          color: "lightgreen",
+	          background: "red"
 	        }));
 	      });
 	    });
@@ -13498,7 +13516,7 @@
 	  }
 	}.call(this));
 	
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(18)(module), (function() { return this; }())))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(17)(module), (function() { return this; }())))
 
 /***/ },
 /* 6 */
@@ -13523,7 +13541,7 @@
 	 * Assertion Error
 	 */
 
-	exports.AssertionError = __webpack_require__(17);
+	exports.AssertionError = __webpack_require__(18);
 
 	/*!
 	 * Utils for plugins (not exported)
@@ -13644,18 +13662,19 @@
 
 	var randMaker = __webpack_require__(7);
 
-	module.exports = function generate(seed,options) {
-		var rand = randMaker(seed);
+	module.exports = function generate(seed, options) {
 		options = options || {}
 		var scale = options.scale || 5;
 		var size = options.size || 11;
-		
-		var imageData = generateData(rand, size); 
-		
+		var rand = randMaker(seed + size);
+
+		var imageData = generateData(rand, size);
+
 		// random color MUST be after data generation else the data generated is dependand on wether color is provided
 		var color = options.color || makeColor(rand);
-		 
-		return makeCanvas(imageData, scale, color);;
+
+		return makeCanvas(imageData, scale, color, options.background);
+		;
 	}
 
 	module.exports._exposed = {
@@ -13668,7 +13687,7 @@
 		var hue = (rand() * 360 | 0);              //  0 - 360 degrees
 		var saturation = ((rand() * 100 | 0) + 0); // 50 - 100%
 
-		                                           // these colors "work" on white and black
+		// these colors "work" on white and black
 		var light = ((rand() * 30 | 0) + 35);      // 30 - 70%
 		return "hsl( " + hue + ", " + saturation + "%, " + light + "%)";
 	}
@@ -13678,7 +13697,7 @@
 		var midPoint = Math.ceil(size / 2);
 		var data = [];
 		var i, j;
-		for (i = 0; i < size; i++) { 
+		for (i = 0; i < size; i++) {
 			for (j = 0; j < midPoint; j++) {
 				var onoff = rand() >= 0.5;
 				data[i * size + j] = onoff;
@@ -13688,9 +13707,9 @@
 
 		return data;
 	}
-	 
 
-	function makeCanvas(data, scale, color) {
+
+	function makeCanvas(data, scale, color, background) {
 		var canvas = document.createElement('canvas');
 		var width = Math.sqrt(data.length);
 		var i;
@@ -13699,13 +13718,15 @@
 
 		var ctx = canvas.getContext('2d');
 		// transparent
-		//	ctx.fillStyle = '#fff';
-		//	ctx.fillRect(0, 0, canvas.width, canvas.height); 
+		if (background) {
+			ctx.fillStyle = background;
+			ctx.fillRect(0, 0, canvas.width, canvas.height);
+		}
 		ctx.fillStyle = color;
 
 		for (i = 0; i < data.length; i++) {
 			var row = Math.floor(i / width);
-			var col = i % width; 
+			var col = i % width;
 			if (data[i]) {
 				ctx.fillRect(col * scale, row * scale, scale, scale);
 			}
@@ -14089,13 +14110,13 @@
 	 * Add a chainable method
 	 */
 
-	exports.addChainableMethod = __webpack_require__(34);
+	exports.addChainableMethod = __webpack_require__(33);
 
 	/*!
 	 * Overwrite chainable method
 	 */
 
-	exports.overwriteChainableMethod = __webpack_require__(33);
+	exports.overwriteChainableMethod = __webpack_require__(34);
 
 
 
@@ -16587,6 +16608,22 @@
 /* 17 */
 /***/ function(module, exports, __webpack_require__) {
 
+	module.exports = function(module) {
+		if(!module.webpackPolyfill) {
+			module.deprecate = function() {};
+			module.paths = [];
+			// module.parent = undefined by default
+			module.children = [];
+			module.webpackPolyfill = 1;
+		}
+		return module;
+	}
+
+
+/***/ },
+/* 18 */
+/***/ function(module, exports, __webpack_require__) {
+
 	/*!
 	 * assertion-error
 	 * Copyright(c) 2013 Jake Luer <jake@qualiancy.com>
@@ -16697,22 +16734,6 @@
 
 	  return props;
 	};
-
-
-/***/ },
-/* 18 */
-/***/ function(module, exports, __webpack_require__) {
-
-	module.exports = function(module) {
-		if(!module.webpackPolyfill) {
-			module.deprecate = function() {};
-			module.paths = [];
-			// module.parent = undefined by default
-			module.children = [];
-			module.webpackPolyfill = 1;
-		}
-		return module;
-	}
 
 
 /***/ },
@@ -17697,65 +17718,6 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	/*!
-	 * Chai - overwriteChainableMethod utility
-	 * Copyright(c) 2012-2014 Jake Luer <jake@alogicalparadox.com>
-	 * MIT Licensed
-	 */
-
-	/**
-	 * ### overwriteChainableMethod (ctx, name, fn)
-	 *
-	 * Overwites an already existing chainable method
-	 * and provides access to the previous function or
-	 * property.  Must return functions to be used for
-	 * name.
-	 *
-	 *     utils.overwriteChainableMethod(chai.Assertion.prototype, 'length',
-	 *       function (_super) {
-	 *       }
-	 *     , function (_super) {
-	 *       }
-	 *     );
-	 *
-	 * Can also be accessed directly from `chai.Assertion`.
-	 *
-	 *     chai.Assertion.overwriteChainableMethod('foo', fn, fn);
-	 *
-	 * Then can be used as any other assertion.
-	 *
-	 *     expect(myFoo).to.have.length(3);
-	 *     expect(myFoo).to.have.length.above(3);
-	 *
-	 * @param {Object} ctx object whose method / property is to be overwritten
-	 * @param {String} name of method / property to overwrite
-	 * @param {Function} method function that returns a function to be used for name
-	 * @param {Function} chainingBehavior function that returns a function to be used for property
-	 * @name overwriteChainableMethod
-	 * @api public
-	 */
-
-	module.exports = function (ctx, name, method, chainingBehavior) {
-	  var chainableBehavior = ctx.__methods[name];
-
-	  var _chainingBehavior = chainableBehavior.chainingBehavior;
-	  chainableBehavior.chainingBehavior = function () {
-	    var result = chainingBehavior(_chainingBehavior).call(this);
-	    return result === undefined ? this : result;
-	  };
-
-	  var _method = chainableBehavior.method;
-	  chainableBehavior.method = function () {
-	    var result = method(_method).apply(this, arguments);
-	    return result === undefined ? this : result;
-	  };
-	};
-
-
-/***/ },
-/* 34 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/*!
 	 * Chai - addChainingMethod utility
 	 * Copyright(c) 2012-2014 Jake Luer <jake@alogicalparadox.com>
 	 * MIT Licensed
@@ -17869,6 +17831,65 @@
 
 
 /***/ },
+/* 34 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/*!
+	 * Chai - overwriteChainableMethod utility
+	 * Copyright(c) 2012-2014 Jake Luer <jake@alogicalparadox.com>
+	 * MIT Licensed
+	 */
+
+	/**
+	 * ### overwriteChainableMethod (ctx, name, fn)
+	 *
+	 * Overwites an already existing chainable method
+	 * and provides access to the previous function or
+	 * property.  Must return functions to be used for
+	 * name.
+	 *
+	 *     utils.overwriteChainableMethod(chai.Assertion.prototype, 'length',
+	 *       function (_super) {
+	 *       }
+	 *     , function (_super) {
+	 *       }
+	 *     );
+	 *
+	 * Can also be accessed directly from `chai.Assertion`.
+	 *
+	 *     chai.Assertion.overwriteChainableMethod('foo', fn, fn);
+	 *
+	 * Then can be used as any other assertion.
+	 *
+	 *     expect(myFoo).to.have.length(3);
+	 *     expect(myFoo).to.have.length.above(3);
+	 *
+	 * @param {Object} ctx object whose method / property is to be overwritten
+	 * @param {String} name of method / property to overwrite
+	 * @param {Function} method function that returns a function to be used for name
+	 * @param {Function} chainingBehavior function that returns a function to be used for property
+	 * @name overwriteChainableMethod
+	 * @api public
+	 */
+
+	module.exports = function (ctx, name, method, chainingBehavior) {
+	  var chainableBehavior = ctx.__methods[name];
+
+	  var _chainingBehavior = chainableBehavior.chainingBehavior;
+	  chainableBehavior.chainingBehavior = function () {
+	    var result = chainingBehavior(_chainingBehavior).call(this);
+	    return result === undefined ? this : result;
+	  };
+
+	  var _method = chainableBehavior.method;
+	  chainableBehavior.method = function () {
+	    var result = method(_method).apply(this, arguments);
+	    return result === undefined ? this : result;
+	  };
+	};
+
+
+/***/ },
 /* 35 */
 /***/ function(module, exports, __webpack_require__) {
 
@@ -17961,14 +17982,14 @@
 	 * Module dependencies
 	 */
 
-	var type = __webpack_require__(39);
+	var type = __webpack_require__(40);
 
 	/*!
 	 * Buffer.isBuffer browser shim
 	 */
 
 	var Buffer;
-	try { Buffer = __webpack_require__(40).Buffer; }
+	try { Buffer = __webpack_require__(39).Buffer; }
 	catch(ex) {
 	  Buffer = {};
 	  Buffer.isBuffer = function() { return false; }
@@ -18212,13 +18233,6 @@
 
 /***/ },
 /* 39 */
-/***/ function(module, exports, __webpack_require__) {
-
-	module.exports = __webpack_require__(41);
-
-
-/***/ },
-/* 40 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(Buffer) {/*!
@@ -19391,7 +19405,14 @@
 	  if (!test) throw new Error(message || 'Failed assertion')
 	}
 	
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(40).Buffer))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(39).Buffer))
+
+/***/ },
+/* 40 */
+/***/ function(module, exports, __webpack_require__) {
+
+	module.exports = __webpack_require__(41);
+
 
 /***/ },
 /* 41 */

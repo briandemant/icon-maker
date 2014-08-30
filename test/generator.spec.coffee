@@ -114,16 +114,23 @@ describe "Generator Tests", ->
 
 		describe "visual tests", ->
 
-			it "color does not change the pattern (visual #4 + #5)", -> 
+			it "color does not change the pattern (visual #4 x 2)", -> 
 				addVisual 4, generator "same pattern" 
-				addVisual 5, generator "same pattern", color: "green"
+				addVisual 4, generator "same pattern", color: "green"
 
-			it "scale does not change the pattern (visual #6)", ->
-				addVisual 6, generator "same pattern", scale: 4, color: "#ea8"
+			it "scale does not change the pattern (visual #5 x 3)", ->
+				addVisual 5, generator "same pattern", scale: 2, color: "#a08"
+				addVisual 5, generator "same pattern", scale: 3, color: "#a08"
+				addVisual 5, generator "same pattern", scale: 4, color: "#a08"
 
-			it "size does change the pattern (visual #7)", -> 
-				addVisual 7, generator "same pattern", size: 11, color: "#a84"
+			it "size does not change the pattern (visual #6)", -> 
+				addVisual 6, generator "same pattern", size: 12, color: "#a84"
 
-			it "small seed change -> big pattern change (visual #8 + #9)", -> 
-				addVisual 8, generator "pattern1", color: "#000" 
-				addVisual 9, generator "pattern2", color: "#000"
+			it "small seed change -> big pattern change (visual #7 x 2)", ->
+				addVisual 7, generator "pattern1", color: "#000"
+				addVisual 7, generator "pattern2", color: "#000"
+
+
+			it "background color (visual #8 x 2)", ->
+				addVisual 8, generator "pattern a", color: "#000", background: "white"
+				addVisual 8, generator "pattern a", color: "lightgreen", background: "red" 

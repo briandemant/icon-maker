@@ -6,6 +6,7 @@ make user / project icons
 ## develop :
 
  > npm install
+ >
  > gulp dev
  
  open browser in http://127.0.0.1:8080/test.html

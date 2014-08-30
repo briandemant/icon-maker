@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>The Icon Demo</title>
+	<script src="icon-maker.min.js"></script>
+	<style>
+		body {
+			background-color: #fff;
+		}
+
+		.top {
+			width: 1200px;
+			height: 120px;
+		}
+
+		.top div {
+			margin-right: 20px;
+			float: left;
+		}
+
+		.list {
+			width: 1200px;
+			clear: both;
+		}
+
+		.list div {
+			width: 120px;
+			height: 100px;
+			float: left;
+		}
+
+		h3 {
+			margin-bottom: 5px;
+		}
+	</style>
+</head>
+<body>
+	<script>
+		var wrap = document.createElement('div')
+		wrap.className = "top";
+		document.body.appendChild(wrap);
+
+		function make(seed, txt, options) {
+			var icon = IconMaker.make(seed, options);
+			var div = document.createElement('div')
+			div.className = "elem";
+			var h3 = document.createElement('h3')
+			h3.innerHTML = txt
+			div.appendChild(h3);
+			div.appendChild(icon);
+			wrap.appendChild(div);
+		}
+
+		make('briandemant', "huge / size", {size : 15, scale : 10, color : "hsl( 360, 100%, 70%)"});
+		make('briandemant', "big", {scale : 10, color : "hsl( 0, 0%, 30%)"});
+		make('briandemant', "default"); 
+		make('briandemant', "small", {scale : 2, color : "hsl( 180, 50%, 50%)"});
+		wrap = document.createElement('div')
+		document.body.appendChild(wrap);
+		wrap.className = "list";
+		for (var i = 0; i < 100; i++) {
+			make(    Math.random(), '#' + i);
+		}
+	</script>
+</body>
+</html>
